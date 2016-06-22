@@ -7,17 +7,61 @@
 //
 
 #import "AppDelegate.h"
+#import <StreetHawkCore/StreetHawkCore.h>
 
 @interface AppDelegate ()
+
+- (void)geofenceEnterExitHandler:(NSNotification *)notification;
 
 @end
 
 @implementation AppDelegate
 
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    [StreetHawk registerInstallForApp:@"SHGeofence" withDebugMode:YES];
+ 
+    //Get notified when enter/exit a server defined geofence.
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(geofenceEnterExitHandler:) name:SHLMEnterExitGeofenceNotification object:nil];
+    
     return YES;
+}
+
+- (void)geofenceEnterExitHandler:(NSNotification *)notification
+{
+    NSDictionary *geofence = notification.userInfo;
+    double latitude = [geofence[@"latitude"] doubleValue];
+    double longitude = [geofence[@"longitude"] doubleValue];
+    double radius = [geofence[@"radius"] doubleValue];
+    BOOL isInside = [geofence[@"isInside"] boolValue];
+    if (isInside) //means enter a geofence
+    {
+        [StreetHawk feed:0 withHandler:^(NSArray *arrayFeeds, NSError *error) //fetch feed json
+        {
+            for (SHFeedObject *feedObj in arrayFeeds)
+            {
+                NSDictionary *json = feedObj.content;
+                if (ABS([json[@"latitude"] doubleValue] - latitude) < 1
+                    && ABS([json[@"longitude"] doubleValue] - longitude) < 1
+                    && ABS([json[@"radius"] doubleValue] - radius) < 1)  //find the match feed json with title and message and delay time
+                {
+                    NSString *title = feedObj.title;
+                    NSString *message = feedObj.message;
+                    double delayMins = [json[@"delay"] doubleValue];
+                    //create delay fire local notification
+                    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+                    localNotification.alertTitle = title;
+                    localNotification.alertBody = message;
+                    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:delayMins * 60]; //delay fire
+                    localNotification.soundName = UILocalNotificationDefaultSoundName;
+                    localNotification.applicationIconBadgeNumber = 1;
+                    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+                    break;
+                }
+            }
+        }];
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
