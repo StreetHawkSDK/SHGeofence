@@ -1,28 +1,34 @@
 PODS:
+  - AutoScrollLabel (0.4.3)
   - MBProgressHUD (0.9.2)
   - Reachability (3.2)
-  - streethawk/Core (1.8.1):
+  - streethawk/Core (1.8.2):
     - MBProgressHUD
-    - streethawk/Core/no-arc (= 1.8.1)
-  - streethawk/Core/no-arc (1.8.1):
+    - streethawk/Core/no-arc (= 1.8.2)
+  - streethawk/Core/no-arc (1.8.2):
     - MBProgressHUD
-  - streethawk/Feed (1.8.1):
+  - streethawk/Feed (1.8.2):
     - streethawk/Core
-  - streethawk/Geofence (1.8.1):
+  - streethawk/Geofence (1.8.2):
     - Reachability
     - streethawk/Core
-  - streethawk/Locations (1.8.1):
+  - streethawk/Locations (1.8.2):
     - Reachability
+    - streethawk/Core
+  - streethawk/Push (1.8.2):
+    - AutoScrollLabel
     - streethawk/Core
 
 DEPENDENCIES:
   - streethawk/Feed
   - streethawk/Geofence
   - streethawk/Locations
+  - streethawk/Push
 
 SPEC CHECKSUMS:
+  AutoScrollLabel: bee53a1d4532569b49cbecaf9b80ca003bed3767
   MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
-  streethawk: 9fd8fdd65e1d55da57eab105ed53055e1b6e7ae1
+  streethawk: 2c41b34c92a8e901a42127d546c0cc97e587f166
 
 COCOAPODS: 0.39.0
