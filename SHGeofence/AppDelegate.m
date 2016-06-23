@@ -43,13 +43,11 @@
                 NSDictionary *json = feedObj.content;
                 if ([title compare:json[@"title"]] == NSOrderedSame)  //find the match feed json, you can define your own compare condition, using latitude, longitude, radius, title or suid etc.
                 {
-                    NSString *title = feedObj.title;
-                    NSString *message = feedObj.message;
                     double delayMins = [json[@"delay"] doubleValue]; //feed can add customized value such as delay time
                     //create delay fire local notification
                     UILocalNotification *localNotification = [[UILocalNotification alloc] init];
-                    localNotification.alertTitle = title;
-                    localNotification.alertBody = message;
+                    localNotification.alertTitle = feedObj.title;
+                    localNotification.alertBody = feedObj.message;
                     localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:delayMins * 60]; //delay fire
                     localNotification.soundName = UILocalNotificationDefaultSoundName;
                     localNotification.applicationIconBadgeNumber = 1;
