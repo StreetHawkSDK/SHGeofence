@@ -11,10 +11,14 @@ PODS:
   - streethawk/Geofence (1.8.1):
     - Reachability
     - streethawk/Core
+  - streethawk/Locations (1.8.1):
+    - Reachability
+    - streethawk/Core
 
 DEPENDENCIES:
   - streethawk/Feed
   - streethawk/Geofence
+  - streethawk/Locations
 
 SPEC CHECKSUMS:
   MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
