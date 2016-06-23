@@ -31,24 +31,21 @@
 - (void)geofenceEnterExitHandler:(NSNotification *)notification
 {
     NSDictionary *geofence = notification.userInfo;
-    double latitude = [geofence[@"latitude"] doubleValue];
-    double longitude = [geofence[@"longitude"] doubleValue];
-    double radius = [geofence[@"radius"] doubleValue];
+    //It contains many property for compare: latitude, longitude, radius, title, suid etc. I use "title" in this demo as it's easy to read.
+    NSString *title = geofence[@"title"];
     BOOL isInside = [geofence[@"isInside"] boolValue];
-    if (isInside) //means enter a geofence
+    if (isInside) //means enter a geofence, register delay local notification with matching information.
     {
         [StreetHawk feed:0 withHandler:^(NSArray *arrayFeeds, NSError *error) //fetch feed json
         {
             for (SHFeedObject *feedObj in arrayFeeds)
             {
                 NSDictionary *json = feedObj.content;
-                if (ABS([json[@"latitude"] doubleValue] - latitude) < 1
-                    && ABS([json[@"longitude"] doubleValue] - longitude) < 1
-                    && ABS([json[@"radius"] doubleValue] - radius) < 1)  //find the match feed json with title and message and delay time
+                if ([title compare:json[@"title"]] == NSOrderedSame)  //find the match feed json, you can define your own compare condition, using latitude, longitude, radius, title or suid etc.
                 {
                     NSString *title = feedObj.title;
                     NSString *message = feedObj.message;
-                    double delayMins = [json[@"delay"] doubleValue];
+                    double delayMins = [json[@"delay"] doubleValue]; //feed can add customized value such as delay time
                     //create delay fire local notification
                     UILocalNotification *localNotification = [[UILocalNotification alloc] init];
                     localNotification.alertTitle = title;
@@ -56,11 +53,22 @@
                     localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:delayMins * 60]; //delay fire
                     localNotification.soundName = UILocalNotificationDefaultSoundName;
                     localNotification.applicationIconBadgeNumber = 1;
+                    localNotification.userInfo = @{@"title": title};
                     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
                     break;
                 }
             }
         }];
+    }
+    else //means exit a geofence, cancel the not fired local notification.
+    {
+        for (UILocalNotification *localNotification in [UIApplication sharedApplication].scheduledLocalNotifications)
+        {
+            if ([title compare:localNotification.userInfo[@"title"]] == NSOrderedSame)
+            {
+                [[UIApplication sharedApplication] cancelLocalNotification:localNotification];
+            }
+        }
     }
 }
 
